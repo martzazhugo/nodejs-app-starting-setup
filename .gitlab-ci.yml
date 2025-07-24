@@ -4,20 +4,19 @@ services:
   - docker:dind
 
 variables:
-  IMAGE_NAME: registry.gitlab.com/$CI_PROJECT_PATH/app:latest
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG: registry.gitlab.com/$CI_PROJECT_PATH:latest
 
 stages:
   - build
-  - push
+  - deploy
 
-build-image:
+build_image:
   stage: build
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker build -t $IMAGE_NAME .
-    - docker images
-
-push-image:
-  stage: push
-  script:
-    - docker push $IMAGE_NAME
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - main
